@@ -3,7 +3,7 @@
 
 last_value = 0
 larger = -1
-with open("input/input_day1-1.txt", "r") as file:
+with open("../input/input_day1-1.txt", "r") as file:
     plain_file = file.readlines()
 
 for index, value in enumerate(plain_file):

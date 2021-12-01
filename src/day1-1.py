@@ -3,7 +3,7 @@
 
 last_value = 0
 larger = -1
-with open("input/input_day1-1.txt", "r") as file:
+with open("../input/input_day1-1.txt", "r") as file:
     for line in file:
         if int(line) > last_value:
             larger += 1
