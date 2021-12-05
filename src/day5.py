@@ -1,5 +1,13 @@
 import re
 
+
+def add_coord_to_set(coord, overlap, coords):
+    if coord in coord_set:
+        overlap.add(coord)
+    else:
+        coords.add(coord)
+
+
 if __name__ == '__main__':
     with open("../input/input_day5.txt", "r") as file:
         plain_file = file.read()
@@ -19,22 +27,26 @@ if __name__ == '__main__':
 
     # Put all coordinates in list
     coord_list = []
+    coord_set = set()
+    overlapping_coord_set = set()
     for line in list_of_lines_endpoints:
         if line[0] == line[2]:
             for y in range(line[1], line[3], -1 if line[1] > line[3] else 1):
-                coord_list.append((line[0], y))
-            coord_list.append((line[2],line[3]))
+                coord = (line[0], y)
+                add_coord_to_set(coord, overlapping_coord_set, coord_set)
+            add_coord_to_set((line[2], line[3]), overlapping_coord_set, coord_set)
         elif line[1] == line[3]:
             for x in range(line[0], line[2], -1 if line[0] > line[2] else 1):
-                coord_list.append((x, line[1]))
-            coord_list.append((line[2], line[3]))
+                coord = (x, line[1])
+                add_coord_to_set(coord, overlapping_coord_set, coord_set)
+            add_coord_to_set((line[2], line[3]), overlapping_coord_set, coord_set)
         else:
             y = line[1]
             x_direction = -1 if line[0] > line[2] else 1
             y_direction = -1 if line[1] > line[3] else 1
             for x in range(line[0], line[2], x_direction):
-                coord_list.append((x, y))
+                coord = (x,y)
+                add_coord_to_set(coord, overlapping_coord_set, coord_set)
                 y = y + y_direction
-            coord_list.append((line[2], line[3]))
-    overlapping_coords = set([coord for coord in coord_list if coord_list.count(coord) > 1])
-    print(f"lenght of overlapping = {len(overlapping_coords)}")
+            add_coord_to_set((line[2], line[3]), overlapping_coord_set, coord_set)
+    print(f"lenght of overlapping = {len(overlapping_coord_set)}")
