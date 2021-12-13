@@ -1,23 +1,33 @@
 import copy
 
+end_paths = set()
+
+
+def small_cave_visited_twice(path):
+    smalls = [cave for cave in path if not cave.isupper()]
+    # done = any([smalls.count(cave) > 1 for cave in smalls])
+    done = len(set([cave for cave in smalls if smalls.count(cave) > 1]))
+    return done
+
 
 def step(g, path, paths):
-    for i, cave in enumerate(g[path[-1]]):
-        # print(cave)
+    # print(len(end_paths))
+    a = g[path[-1]]
+    # print(a)
+    for cave in a:
         if cave == 'end':
-            print(f"END {path.append(cave)}")
-
+            end_paths.add(path)
+            print(path)
         else:
-            if cave in path and not cave.isupper():
-                continue
-            if "".join(path) in ["".join(p) for p in paths]:
-                current_path = copy.deepcopy(path)
-                current_path.append(cave)
-                paths.append(current_path)
-            else:
-                path.append(cave)
-                current_path = path
-            step(g, current_path, paths)
+            if cave.isupper() or (cave not in path) or not small_cave_visited_twice(path):
+                if "".join(path) in ["".join(p) for p in paths]:
+                    current_path = copy.deepcopy(path)
+                    current_path = (*current_path, cave)
+                    if not small_cave_visited_twice(current_path):
+                        paths.add(current_path)
+                else:
+                    current_path = (*path, cave)
+                step(g, current_path, paths)
 
 
 def main(lines):
@@ -25,18 +35,22 @@ def main(lines):
     for line in lines:
         route = line.split("-")
         if route[0] in graph.keys():
-            graph[route[0]].append(route[1])
+            if route[1] != 'start':
+                graph[route[0]].append(route[1])
         else:
-            graph[route[0]] = [route[1]]
+            if route[1] != 'start':
+                graph[route[0]] = [route[1]]
         if route[1] in graph.keys():
-            graph[route[1]].append(route[0])
+            if route[0] != 'start':
+                graph[route[1]].append(route[0])
         else:
-            graph[route[1]] = [route[0]]
+            if route[0] != 'start':
+                graph[route[1]] = [route[0]]
 
-    pathies = [['start']]
-    step(graph, ['start'], pathies)
-    set_of_paths = set(tuple(path) for path in pathies if 'end' == path[-1])
-    print(len(set_of_paths))
+    pathies = {('start')}
+    step(graph, ('start',), pathies)
+    # set_of_paths = set(tuple(path) for path in end_paths if 'end' == path[-1])
+    print(len(end_paths))
 
 
 if __name__ == '__main__':
