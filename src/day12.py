@@ -17,7 +17,7 @@ def step(g, path, paths):
     for cave in a:
         if cave == 'end':
             end_paths.add(path)
-            print(path)
+            # print(path)
         else:
             if cave.isupper() or (cave not in path) or not small_cave_visited_twice(path):
                 if "".join(path) in ["".join(p) for p in paths]:
@@ -25,8 +25,11 @@ def step(g, path, paths):
                     current_path = (*current_path, cave)
                     if not small_cave_visited_twice(current_path):
                         paths.add(current_path)
+
                 else:
                     current_path = (*path, cave)
+                    if small_cave_visited_twice(current_path):
+                        continue
                 step(g, current_path, paths)
 
 
@@ -46,7 +49,7 @@ def main(lines):
         else:
             if route[0] != 'start':
                 graph[route[1]] = [route[0]]
-
+    # graph.pop('end')
     pathies = {('start')}
     step(graph, ('start',), pathies)
     # set_of_paths = set(tuple(path) for path in end_paths if 'end' == path[-1])
@@ -54,7 +57,7 @@ def main(lines):
 
 
 if __name__ == '__main__':
-    with open("../input/input_day12.txt", "r") as file:
+    with open("../input/input_day12_test.txt", "r") as file:
         lines = file.read().splitlines()
 
     main(lines)
