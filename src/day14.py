@@ -1,51 +1,17 @@
-class Node:
-    def __init__(self, data):
-        self.data = data
-        self.next = None
+import copy
 
-class LinkedList:
-    def __init__(self):
-        self.head = None
 
-    def insert_after(self, prev_node, new_data):
-        new_node = Node(new_data)
-        new_node.next = prev_node.next
-        prev_node.next = new_node
+def input_to_amount_of_pairs(startinglist):
+    map_amount_of_pairs = {}
+    for i, elm in enumerate(startinglist):
+        if i + 1 < len(startinglist):
+            pair = elm + startinglist[i + 1]
+            if pair in map_amount_of_pairs.keys():
+                map_amount_of_pairs[pair] += 1
+            else:
+                map_amount_of_pairs[pair] = 1
+    return map_amount_of_pairs
 
-    def append(self, new_data):
-        new_node = Node(new_data)
-        #    new node as head
-        if self.head is None:
-            self.head = new_node
-            return
-        last = self.head
-        while (last.next):
-            last = last.next
-        last.next = new_node
-
-    def get_as_list(self):
-        temp = self.head
-        l = []
-        while temp:
-            l.append(temp.data)
-            temp = temp.next
-        return l
-
-    def printList(self):
-        temp = self.head
-        string = ""
-        while temp:
-            string += temp.data
-            temp = temp.next
-        print(string)
-
-    def len(self):
-        temp = self.head
-        len = 0
-        while temp:
-            len += 1
-            temp = temp.next
-        return len
 
 if __name__ == '__main__':
     with open("../input/input_day14.txt", "r") as file:
@@ -56,34 +22,50 @@ if __name__ == '__main__':
     insertions = lines[2:]
 
     commands = {}
+
+    map_amount_of_pairs = input_to_amount_of_pairs(start)
+
+    map_pair_to_new_pairs = {}
     for i in insertions:
         pair, insertable = i.split(" -> ")
+        map_pair_to_new_pairs[pair] = [pair[0] + insertable, insertable + pair[1]]
 
-        commands[pair] = insertable
+    for _ in range(40):
+        cp_map_amount_of_pairs = copy.deepcopy(map_amount_of_pairs)
+        for pair in cp_map_amount_of_pairs:
+            if pair in map_pair_to_new_pairs and cp_map_amount_of_pairs[pair] > 0:
+                a, b = map_pair_to_new_pairs[pair]
+                growth = cp_map_amount_of_pairs[pair]
+                cp_map_amount_of_pairs[pair] = 0
+                map_amount_of_pairs[pair] -= growth
+                if a in map_amount_of_pairs.keys():
+                    map_amount_of_pairs[a] += growth
+                else:
+                    map_amount_of_pairs[a] = growth
+                if b in map_amount_of_pairs.keys():
+                    map_amount_of_pairs[b] += growth
+                else:
+                    map_amount_of_pairs[b] = growth
 
-    ll = LinkedList()
-    for elm in start:
-        ll.append(elm)
-    ll.printList()
-    print()
-
-    last_len = 1
-    for _ in range(10):
-        current_node = ll.head
-        while current_node:
-            next_node = current_node.next
-            if next_node:
-                if current_node.data + next_node.data in commands.keys():
-                    ll.insert_after(current_node, commands[current_node.data + next_node.data])
-            current_node = next_node
-
-
-    current_node = ll.head
-    count_dict = {}
-    while current_node:
-        if current_node.data in count_dict.keys():
-            count_dict[current_node.data] += 1
+    count_letters = {}
+    for pair in map_amount_of_pairs:
+        a = pair[0]
+        b = pair[1]
+        if a in count_letters.keys():
+            count_letters[a] += map_amount_of_pairs[pair]
         else:
-            count_dict[current_node.data] = 1
-        current_node = current_node.next
-    print(f"max - min = {max(count_dict.values()) - min(count_dict.values())}")
+            count_letters[a] = map_amount_of_pairs[pair]
+        if b in count_letters.keys():
+            count_letters[b] += map_amount_of_pairs[pair]
+        else:
+            count_letters[b] = map_amount_of_pairs[pair]
+
+    # Count edges because they will not have a pair with the ends
+    count_letters[start[0]] += 1
+    count_letters[start[-1]] += 1
+
+    # Divide because the pairs are double
+    for letter in count_letters:
+        count_letters[letter] = count_letters[letter]/2
+
+    print(f"max - min = {max(count_letters.values()) - min(count_letters.values())}")
